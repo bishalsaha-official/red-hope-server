@@ -1,5 +1,6 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express')
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const app = express()
 const cors = require('cors')
@@ -30,19 +31,30 @@ async function run() {
     await client.connect();
 
     const contactCollection = client.db("RedHope").collection('contacts')
+    const usersCollection = client.db("RedHope").collection('users')
 
 
-    // Contacts APi
-    app.post('/contacts', async (req, res)=>{
+
+    // Jwt Related Api
+    app.post('/jwt', (req, res) => {
+      const user = req.body
+      const token = jwt.sign(user, ACCESS_TOKEN_KEY, { expiresIn: '2h' })
+      res.send({ token })
+    })
+
+    // Contacts Related APi
+    app.post('/contacts', async (req, res) => {
       const contact = req.body;
       const result = await contactCollection.insertOne(contact)
       res.send(result)
     })
 
-
-
-
-
+    // Users Related Api
+    app.post('/users', async (req, res) => {
+      const user = req.body
+      const result = await usersCollection.insertOne(user)
+      res.send(result)
+    })
 
 
 

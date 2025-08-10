@@ -34,11 +34,27 @@ async function run() {
     const usersCollection = client.db("RedHope").collection('users')
 
 
+    // Middleware
+    const verifyToken = (req, res, next) => {
+      console.log('inside token', req.headers.authorization)
+      if (!req.headers.authorization) {
+        return res.status(401).send({ message: "forbidden access" })
+      }
+      const token = req.headers.authorization.split(' ')[1]
+      jwt.verify(token, process.env.ACCESS_TOKEN_KEY, (err, decode) => {
+        if (err) {
+          return res.status(401).send({ message: "forbidden access" })
+        }
+        req.decode = decode
+        next()
+      })
+    }
 
     // Jwt Related Api
     app.post('/jwt', (req, res) => {
       const user = req.body
-      const token = jwt.sign(user, ACCESS_TOKEN_KEY, { expiresIn: '2h' })
+      console.log(user)
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_KEY, { expiresIn: '2h' })
       res.send({ token })
     })
 
@@ -53,6 +69,14 @@ async function run() {
     app.post('/users', async (req, res) => {
       const user = req.body
       const result = await usersCollection.insertOne(user)
+      res.send(result)
+    })
+
+    // Get Specific User
+    app.get('/users/:email', async (req, res) => {
+      const email = req.params.email
+      const query = { email: email }
+      const result = await usersCollection.findOne(query)
       res.send(result)
     })
 

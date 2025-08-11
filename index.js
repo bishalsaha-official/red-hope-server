@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express')
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
@@ -51,21 +51,20 @@ async function run() {
     }
 
     // Jwt Related Api
-    app.post('/jwt', (req, res) => {
+    app.post('/jwt', async (req, res) => {
       const user = req.body
-      console.log(user)
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_KEY, { expiresIn: '2h' })
       res.send({ token })
     })
 
-    // Contacts Related APi
+    // Contacts Related APi -----------------------------------------------------------------
     app.post('/contacts', async (req, res) => {
       const contact = req.body;
       const result = await contactCollection.insertOne(contact)
       res.send(result)
     })
 
-    // Users Related Api
+    // Users Related Api ---------------------------------------------------------------------
     app.post('/users', async (req, res) => {
       const user = req.body
       const result = await usersCollection.insertOne(user)
@@ -79,6 +78,27 @@ async function run() {
       const result = await usersCollection.findOne(query)
       res.send(result)
     })
+
+    // Update user information
+    app.patch('/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedData = req.body;
+      console.log(updatedData)
+
+      const updateDoc = {
+        $set: {
+          name: updatedData.name,
+          image: updatedData.image,
+          bloodGroup: updatedData.bloodGroup,
+          district: updatedData.district,
+          upazila: updatedData.upazila
+        }
+      };
+
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
 
 
 

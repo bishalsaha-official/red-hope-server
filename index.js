@@ -32,6 +32,7 @@ async function run() {
 
     const contactCollection = client.db("RedHope").collection('contacts')
     const usersCollection = client.db("RedHope").collection('users')
+    const donationRequestCollection = client.db("RedHope").collection('donation-request')
 
 
     // Middleware
@@ -99,6 +100,14 @@ async function run() {
       const result = await usersCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+
+    // Donation Related Api--------------------------------------------------------
+    // Post donation request
+    app.post('/donation-request', async (req, res) => {
+      const donation = req.body
+      const result = await donationRequestCollection.insertOne(donation)
+      res.send(result)
+    })
 
 
 

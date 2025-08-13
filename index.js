@@ -102,6 +102,23 @@ async function run() {
     });
 
     // Donation Related Api--------------------------------------------------------
+
+    // Get donation request data
+    app.get('/donation-request', async (req, res) => {
+      const email = req.query.email
+      const query = { requesterEmail: email }
+      const result = await donationRequestCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // Get donation request data (last 3 recent posted)
+    app.get('/donation-request/recent', async (req, res) => {
+      const email = req.query.email
+      const query = { requesterEmail: email }
+      const result = await donationRequestCollection.find(query).sort({ donationDate: -1, donationTime: -1 }).limit(3).toArray()
+      res.send(result)
+    })
+
     // Post donation request
     app.post('/donation-request', async (req, res) => {
       const donation = req.body

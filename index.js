@@ -51,7 +51,7 @@ async function run() {
       })
     }
 
-    // Jwt Related Api
+    // Jwt Related Api----------------------------------------------------------------------
     app.post('/jwt', async (req, res) => {
       const user = req.body
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_KEY, { expiresIn: '2h' })
@@ -124,6 +124,15 @@ async function run() {
       const donation = req.body
       const result = await donationRequestCollection.insertOne(donation)
       res.send(result)
+    })
+
+
+    // Admin Related Api-------------------------------------------------------------------
+    // admin stats
+    app.get('/admin-stats', async (req, res) => {
+      const users = await usersCollection.estimatedDocumentCount()
+      const donationRequest = await donationRequestCollection.estimatedDocumentCount()
+      res.send({ users, donationRequest })
     })
 
 

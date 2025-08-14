@@ -109,7 +109,13 @@ async function run() {
 
     // Donation Related Api--------------------------------------------------------
 
-    // Get donation request data
+    // Get All Donation Request Api
+    app.get('/donation-request/all', async (req, res) => {
+      const result = await donationRequestCollection.find().toArray()
+      res.send(result)
+    })
+
+    // Get Donation Request Api for specific user Using
     app.get('/donation-request', async (req, res) => {
       const email = req.query.email
       const query = { requesterEmail: email }
@@ -125,7 +131,7 @@ async function run() {
       res.send(result)
     })
 
-    // Post donation request
+    // Post Donation Request
     app.post('/donation-request', async (req, res) => {
       const donation = req.body
       const result = await donationRequestCollection.insertOne(donation)

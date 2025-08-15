@@ -108,22 +108,29 @@ async function run() {
     });
 
     // Donation Related Api--------------------------------------------------------
-
     // Get All Donation Request Api
     app.get('/donation-request/all', async (req, res) => {
       const result = await donationRequestCollection.find().toArray()
       res.send(result)
     })
 
-    // Get Donation Request Api for specific user Using
+    // Get Donation Requests (filter by email or status)
     app.get('/donation-request', async (req, res) => {
-      const email = req.query.email
-      const query = { requesterEmail: email }
-      const result = await donationRequestCollection.find(query).toArray()
-      res.send(result)
-    })
+      const { email, status } = req.query;
+      const query = {};
 
-    // Get donation request data (last 3 recent posted)
+      if (email) {
+        query.requesterEmail = email;
+      }
+      if (status) {
+        query.status = status;
+      }
+
+      const result = await donationRequestCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // Get Donation Request Data (last 3 recent posted)
     app.get('/donation-request/recent', async (req, res) => {
       const email = req.query.email
       const query = { requesterEmail: email }
@@ -140,12 +147,14 @@ async function run() {
 
 
     // Admin Related Api-------------------------------------------------------------------
-    // admin stats
+    // Admin Stats
     app.get('/admin-stats', async (req, res) => {
       const users = await usersCollection.estimatedDocumentCount()
       const donationRequest = await donationRequestCollection.estimatedDocumentCount()
       res.send({ users, donationRequest })
     })
+
+    // Blog Related Dashboard-------------------------------------------------------------------
 
 
 

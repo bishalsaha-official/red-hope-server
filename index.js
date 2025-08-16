@@ -231,6 +231,20 @@ async function run() {
       res.send(result)
     })
 
+    // Update donation status inprogress to done
+    app.patch('/donation-request/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updateStatus = req.body
+      const updateDoc = {
+        $set: {
+          status: updateStatus.status
+        }
+      }
+      const result = await donationRequestCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
     // Delete Donation request from all donation routes
     app.delete('/donation-request/all/:id', async (req, res) => {
       const id = req.params.id

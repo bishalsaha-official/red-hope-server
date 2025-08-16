@@ -134,6 +134,34 @@ async function run() {
       res.send(result)
     })
 
+    // Make Block User Api
+    app.patch('/users/block/:id', async (req, res) => {
+      const id = req.params.id
+      const updateRole = req.body
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {
+          status: updateRole.status
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+    // Make Block User Api
+    app.patch('/users/unblock/:id', async (req, res) => {
+      const id = req.params.id
+      const updateRole = req.body
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {
+          status: updateRole.status
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
     // Delete User
     app.delete('/user/:id', async (req, res) => {
       const id = req.params.id
@@ -200,6 +228,14 @@ async function run() {
     app.post('/donation-request', async (req, res) => {
       const donation = req.body
       const result = await donationRequestCollection.insertOne(donation)
+      res.send(result)
+    })
+
+    // Delete Donation request from all donation routes
+    app.delete('/donation-request/all/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const result = await donationRequestCollection.deleteOne(filter)
       res.send(result)
     })
 

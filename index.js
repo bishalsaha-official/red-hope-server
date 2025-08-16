@@ -106,6 +106,14 @@ async function run() {
       res.send(result);
     });
 
+    // Delete User
+    app.delete('/user/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await usersCollection.deleteOne(query)
+      res.send(result)
+    })
+
     // Donation Related Api--------------------------------------------------------
     // Get All Donation Request Api
     app.get('/donation-request/all', async (req, res) => {

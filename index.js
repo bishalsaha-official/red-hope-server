@@ -106,6 +106,34 @@ async function run() {
       res.send(result);
     });
 
+    // Make Admin Api 
+    app.patch('/users/admin/:id', async (req, res) => {
+      const id = req.params.id
+      const updateRole = req.body
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {
+          role: updateRole.role
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+    // Make Volunteer Api 
+    app.patch('/users/volunteer/:id', async (req, res) => {
+      const id = req.params.id
+      const updateRole = req.body
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {
+          role: updateRole.role
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
     // Delete User
     app.delete('/user/:id', async (req, res) => {
       const id = req.params.id

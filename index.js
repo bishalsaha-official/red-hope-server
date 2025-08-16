@@ -91,7 +91,6 @@ async function run() {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updatedData = req.body;
-      console.log(updatedData)
 
       const updateDoc = {
         $set: {
@@ -129,6 +128,29 @@ async function run() {
       const result = await donationRequestCollection.find(query).toArray();
       res.send(result);
     });
+
+    // Get Donation Details Api
+    app.get('/donation-request/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await donationRequestCollection.findOne(query)
+      res.send(result)
+    })
+
+    // Update Donation Request Status (pending to inprogress)
+    app.patch('/donation-request/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updateStatus = req.body
+
+      const updateDoc = {
+        $set: {
+          status: updateStatus.status
+        }
+      }
+      const result = await donationRequestCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
 
     // Get Donation Request Data (last 3 recent posted)
     app.get('/donation-request/recent', async (req, res) => {

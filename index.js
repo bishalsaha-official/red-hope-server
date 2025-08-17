@@ -33,6 +33,7 @@ async function run() {
     const contactCollection = client.db("RedHope").collection('contacts')
     const usersCollection = client.db("RedHope").collection('users')
     const donationRequestCollection = client.db("RedHope").collection('donation-request')
+    const blogsCollection = client.db("RedHope").collection('blogs')
 
 
     // Middleware
@@ -262,7 +263,30 @@ async function run() {
       res.send({ users, donationRequest })
     })
 
-    // Blog Related Dashboard-------------------------------------------------------------------
+    // Blog Related Api-------------------------------------------------------------------
+
+    // Get Blog
+    app.get('/blogs', async (req, res) => {
+      const result = await blogsCollection.find().toArray()
+      res.send(result)
+    })
+
+    // Post Blog 
+    app.post('/blogs', async (req, res) => {
+      const blogs = req.body
+      const result = await blogsCollection.insertOne(blogs)
+      res.send(result)
+    })
+
+    // Delete Blog
+    app.delete('/blogs/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await blogsCollection.deleteOne(query)
+      res.send(result)
+    })
+
+
 
 
 

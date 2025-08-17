@@ -270,6 +270,22 @@ async function run() {
       res.send(result)
     })
 
+    // Get Blog (published blog)
+    app.get('/blogs/publish', async (req, res) => {
+      const filter = req.query.status
+      const query = { status: filter }
+      const result = await blogsCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // Get specific blog (details)
+    app.get('/blogs/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const result = await blogsCollection.findOne(query)
+      res.send(result)
+    })
+
     // Post Blog 
     app.post('/blogs', async (req, res) => {
       const blogs = req.body

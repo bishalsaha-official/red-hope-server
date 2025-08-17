@@ -264,7 +264,6 @@ async function run() {
     })
 
     // Blog Related Api-------------------------------------------------------------------
-
     // Get Blog
     app.get('/blogs', async (req, res) => {
       const result = await blogsCollection.find().toArray()
@@ -275,6 +274,20 @@ async function run() {
     app.post('/blogs', async (req, res) => {
       const blogs = req.body
       const result = await blogsCollection.insertOne(blogs)
+      res.send(result)
+    })
+
+    // Update blog status
+    app.patch('/blogs/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const updateStatus = req.body
+      const updateDoc = {
+        $set: {
+          status: updateStatus.status
+        }
+      }
+      const result = await blogsCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
 

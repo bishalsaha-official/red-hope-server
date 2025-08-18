@@ -70,7 +70,7 @@ async function run() {
     // Users Related Api ---------------------------------------------------------------------
 
     // Get All users
-    app.get('/users', async (req, res) => {
+    app.get('/users', verifyToken, async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
@@ -81,6 +81,36 @@ async function run() {
       const query = { email: email }
       const result = await usersCollection.findOne(query)
       res.send(result)
+    })
+
+    // Check User Admin Or Not
+    app.get('/users/check-admin/:email', verifyToken, async (req, res) => {
+      const email = req.params.email
+      if (email !== req.decoded.email) {
+        res.status(403).send({ message: "unauthorized access" })
+      }
+      const query = { email: email }
+      const user = await usersCollection.findOne(query)
+      let admin = false
+      if (user) {
+        admin = user?.role === "admin"
+      }
+      res.send({ admin })
+    })
+
+    // Check User Volunteer Or Not
+    app.get('/users/check-volunteer/:email', verifyToken, async (req, res) => {
+      const email = req.params.email
+      if (email !== req.decoded.email) {
+        res.status(403).send({ message: "unauthorized access" })
+      }
+      const query = { email: email }
+      const user = await usersCollection.findOne(query)
+      let volunteer = false
+      if (user) {
+        volunteer = user?.role === "volunteer"
+      }
+      res.send({ volunteer })
     })
 
     // Post User

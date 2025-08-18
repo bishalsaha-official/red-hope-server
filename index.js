@@ -44,31 +44,19 @@ async function run() {
         return res.status(401).send({ message: "forbidden access" })
       }
       const token = req.headers.authorization.split(' ')[1]
-      jwt.verify(token, process.env.ACCESS_TOKEN_KEY, (err, decode) => {
+      jwt.verify(token, process.env.ACCESS_TOKEN_KEY, (err, decoded) => {
         if (err) {
           return res.status(401).send({ message: "forbidden access" })
         }
-        req.decode = decode
+        req.decoded = decoded
         next()
       })
-    }
-
-    // Verify Admin
-    const verifyAdmin = async (req, res, next) => {
-      const email = req.decode.email
-      const query = { email: email }
-      const user = await usersCollection.findOne(query)
-      const isAdmin = user?.role === 'admin'
-      if (!isAdmin) {
-        return res.status(403).send({ message: 'Unauthorized access' })
-      }
-      next()
     }
 
     // Jwt Related Api----------------------------------------------------------------------
     app.post('/jwt', async (req, res) => {
       const user = req.body
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_KEY, { expiresIn: '2h' })
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_KEY, { expiresIn: '1h' })
       res.send({ token })
     })
 
@@ -80,8 +68,9 @@ async function run() {
     })
 
     // Users Related Api ---------------------------------------------------------------------
+
     // Get All users
-    app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
+    app.get('/users', async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
@@ -92,36 +81,6 @@ async function run() {
       const query = { email: email }
       const result = await usersCollection.findOne(query)
       res.send(result)
-    })
-
-    // Check User Admin or not
-    app.get('/users/admin/:email', verifyToken, async (req, res) => {
-      const email = req.params.email;
-      if (email !== req.decode.email) {
-        return res.status(403).send({ message: "Unauthorized access" })
-      }
-      const query = { email: email }
-      const user = await usersCollection.findOne(query)
-      let admin = false
-      if (user) {
-        admin = user?.role === 'admin'
-      }
-      res.send({ admin })
-    })
-
-    // Check User Volunteer or not
-    app.get('/users/volunteer/:email', verifyToken, async (req, res) => {
-      const email = req.params.email;
-      if (email !== req.decode.email) {
-        return res.status(403).send({ message: "Unauthorized access" })
-      }
-      const query = { email: email }
-      const user = await usersCollection.findOne(query)
-      let volunteer = false
-      if (user) {
-        volunteer = user?.role === 'volunteer'
-      }
-      res.send({ volunteer })
     })
 
     // Post User
@@ -152,7 +111,7 @@ async function run() {
     });
 
     // Make Admin Api 
-    app.patch('/users/admin/:id', verifyToken, verifyAdmin, async (req, res) => {
+    app.patch('/users/admin/:id', async (req, res) => {
       const id = req.params.id
       const updateRole = req.body
       const filter = { _id: new ObjectId(id) }
@@ -166,7 +125,7 @@ async function run() {
     })
 
     // Make Volunteer Api 
-    app.patch('/users/volunteer/:id', verifyToken, verifyAdmin, async (req, res) => {
+    app.patch('/users/volunteer/:id', async (req, res) => {
       const id = req.params.id
       const updateRole = req.body
       const filter = { _id: new ObjectId(id) }
@@ -180,7 +139,7 @@ async function run() {
     })
 
     // Make Block User Api
-    app.patch('/users/block/:id', verifyToken, verifyAdmin, async (req, res) => {
+    app.patch('/users/block/:id', async (req, res) => {
       const id = req.params.id
       const updateRole = req.body
       const filter = { _id: new ObjectId(id) }
@@ -193,8 +152,8 @@ async function run() {
       res.send(result)
     })
 
-    // Make Block User Api
-    app.patch('/users/unblock/:id', verifyToken, verifyAdmin, async (req, res) => {
+    // Make Un Block User Api
+    app.patch('/users/unblock/:id', async (req, res) => {
       const id = req.params.id
       const updateRole = req.body
       const filter = { _id: new ObjectId(id) }
@@ -207,8 +166,8 @@ async function run() {
       res.send(result)
     })
 
-    // Delete User
-    app.delete('/user/:id', verifyToken, verifyAdmin, async (req, res) => {
+    // Delete User Api
+    app.delete('/users/:id', async (req, res) => {
       const id = req.params.id
       const query = { _id: new ObjectId(id) }
       const result = await usersCollection.deleteOne(query)

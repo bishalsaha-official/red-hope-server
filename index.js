@@ -28,12 +28,14 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const contactCollection = client.db("RedHope").collection('contacts')
     const usersCollection = client.db("RedHope").collection('users')
     const donationRequestCollection = client.db("RedHope").collection('donation-request')
     const blogsCollection = client.db("RedHope").collection('blogs')
+    const upazilasCollection = client.db("RedHope").collection('upazilas')
+    const districtsCollection = client.db("RedHope").collection('districts')
 
 
     // Middleware-------------------------------------------------------------------
@@ -373,12 +375,25 @@ async function run() {
     })
 
 
+    // Get Upazila Api
+    app.get('/upazilas', async (req, res) => {
+      const result = await upazilasCollection.find().toArray()
+      res.send(result)
+    })
+
+    // Get Districts Api
+    app.get('/districts', async (req, res) => {
+      const result = await districtsCollection.find().toArray()
+      res.send(result)
+    })
+
+
 
 
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();

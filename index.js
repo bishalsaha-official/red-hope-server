@@ -53,6 +53,30 @@ async function run() {
       })
     }
 
+    // Verify Admin
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.decoded.email
+      const query = { email: email }
+      const user = await usersCollection.findOne(query)
+      const isAdmin = user?.role === 'admin'
+      if (!isAdmin) {
+        return res.status(403).send({ message: "forbidden access" })
+      }
+      next()
+    }
+
+    // Verify Volunteer
+    const verifyVolunter = async (req, res, next) => {
+      const email = req.decoded.email
+      const query = { email: email }
+      const user = await usersCollection.findOne(query)
+      const isVolunteer = user?.role === 'volunteer'
+      if (!isVolunteer) {
+        return res.status(403).send({ message: "forbidden access" })
+      }
+      next()
+    }
+
     // Jwt Related Api----------------------------------------------------------------------
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -70,7 +94,7 @@ async function run() {
     // Users Related Api ---------------------------------------------------------------------
 
     // Get All users
-    app.get('/users', verifyToken, async (req, res) => {
+    app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray()
       res.send(result)
     })
@@ -141,7 +165,7 @@ async function run() {
     });
 
     // Make Admin Api 
-    app.patch('/users/admin/:id', async (req, res) => {
+    app.patch('/users/admin/:id', verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id
       const updateRole = req.body
       const filter = { _id: new ObjectId(id) }
@@ -155,7 +179,7 @@ async function run() {
     })
 
     // Make Volunteer Api 
-    app.patch('/users/volunteer/:id', async (req, res) => {
+    app.patch('/users/volunteer/:id', verifyToken, verifyAdmin, async (req, res) => {
       const id = req.params.id
       const updateRole = req.body
       const filter = { _id: new ObjectId(id) }

@@ -94,10 +94,15 @@ async function run() {
     })
 
     // Users Related Api ---------------------------------------------------------------------
-
     // Get All users
     app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray()
+      res.send(result)
+    })
+
+    // Get User (Role: donor)
+    app.get('/users/donor', async (req, res) => {
+      const result = await usersCollection.find({ role: "donor" }).toArray()
       res.send(result)
     })
 
@@ -269,7 +274,9 @@ async function run() {
 
       const updateDoc = {
         $set: {
-          status: updateStatus.status
+          status: updateStatus.status,
+          donorName: updateStatus.donorName,
+          donorEmail: updateStatus.donorEmail
         }
       }
       const result = await donationRequestCollection.updateOne(filter, updateDoc)

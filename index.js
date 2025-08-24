@@ -34,7 +34,7 @@ async function run() {
     const usersCollection = client.db("RedHope").collection('users')
     const donationRequestCollection = client.db("RedHope").collection('donation-request')
     const blogsCollection = client.db("RedHope").collection('blogs')
-    const upazilasCollection = client.db("RedHope").collection('upazilas')
+    const divisionsCollection = client.db("RedHope").collection('divisions')
     const districtsCollection = client.db("RedHope").collection('districts')
 
 
@@ -375,9 +375,9 @@ async function run() {
     })
 
 
-    // Get Upazila Api
-    app.get('/upazilas', async (req, res) => {
-      const result = await upazilasCollection.find().toArray()
+    // Get Divisions Api
+    app.get('/divisions', async (req, res) => {
+      const result = await divisionsCollection.find().toArray()
       res.send(result)
     })
 

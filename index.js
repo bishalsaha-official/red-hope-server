@@ -100,9 +100,17 @@ async function run() {
       res.send(result)
     })
 
-    // Get User (Role: donor)
+    // Get User (eligible: true)
     app.get('/users/donor', async (req, res) => {
-      const result = await usersCollection.find({ role: "donor" }).toArray()
+      const result = await usersCollection.find({ eligible: "true" }).toArray()
+      res.send(result)
+    })
+
+    // Get User (eligible: true)
+    app.get('/users/donor/:id', async (req, res) => {
+      const id = req.params.id
+      const query = {_id: new ObjectId(id)}
+      const result = await usersCollection.findOne(query)
       res.send(result)
     })
 
@@ -163,7 +171,7 @@ async function run() {
           image: updatedData.image,
           bloodGroup: updatedData.bloodGroup,
           district: updatedData.district,
-          upazila: updatedData.upazila
+          division: updatedData.division
         }
       };
 
@@ -171,33 +179,24 @@ async function run() {
       res.send(result);
     });
 
-    // Make Admin Api 
-    app.patch('/users/admin/:id', verifyToken, verifyAdmin, async (req, res) => {
-      const id = req.params.id
-      const updateRole = req.body
-      const filter = { _id: new ObjectId(id) }
-      const updateDoc = {
-        $set: {
-          role: updateRole.role
-        }
-      }
-      const result = await usersCollection.updateOne(filter, updateDoc)
-      res.send(result)
-    })
+    // Update Donor Status (Eligible & Last Donation Date)
+    app.patch('/users/donor/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedData = req.body;
 
-    // Make Volunteer Api 
-    app.patch('/users/volunteer/:id', verifyToken, verifyAdmin, async (req, res) => {
-      const id = req.params.id
-      const updateRole = req.body
-      const filter = { _id: new ObjectId(id) }
       const updateDoc = {
         $set: {
-          role: updateRole.role
+          eligible: updatedData.eligible,
+          lastDonationDate: updatedData.lastDonationDate
         }
-      }
-      const result = await usersCollection.updateOne(filter, updateDoc)
-      res.send(result)
-    })
+      };
+
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+
 
     // Make Block User Api
     app.patch('/users/block/:id', async (req, res) => {
@@ -322,6 +321,34 @@ async function run() {
 
 
     // Admin Related Api-------------------------------------------------------------------
+    // Make Admin Api 
+    app.patch('/users/admin/:id', verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id
+      const updateRole = req.body
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {
+          role: updateRole.role
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+    // Make Volunteer Api 
+    app.patch('/users/volunteer/:id', verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id
+      const updateRole = req.body
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {
+          role: updateRole.role
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
     // Admin Stats
     app.get('/admin-stats', async (req, res) => {
       const users = await usersCollection.estimatedDocumentCount()
